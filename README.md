@@ -1,6 +1,6 @@
 # SuperRéso
 
-
+![image](schéma_struct.png)
 
 ## Getting started
 
