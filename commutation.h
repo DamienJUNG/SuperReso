@@ -1,5 +1,5 @@
 typedef struct commutation
 {
-	int *port;
+	int *ports;
     byte *mac; // adresse des switch 
 };

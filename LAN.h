@@ -1,7 +1,7 @@
-#include <appareil.h>
-#include <switch.h>
-#include <station.h>
-#include <graphe.h>
+#include "appareil.h"
+#include "routeur.h"
+#include "station.h"
+#include "graphe.h"
 
 #define ROUTEUR 2
 #define STATION 1
