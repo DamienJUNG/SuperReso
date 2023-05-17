@@ -1,9 +1,9 @@
 #include "routeur.h"
 
 void afficheRouteur(routeur monRout){
-    printf("### MAC ###");
+    printf("### MAC ###\n");
     for(int i=0;i<6;i++){
-        printf("%u",monRout->mac[i]);
+        printf("%x",monRout->mac[i]);
     }
     printf("\n",);
 }
@@ -23,7 +23,7 @@ void afficheCommutation(routeur monRout){
         }
         printf("### MAC ###\n");
         for(int y=0;y<6;y++){
-            printf("%u",monRout->table[i]->mac[y]);
+            printf("%x",monRout->table[i]->mac[y]);
         }
         printf("\n");
     }
