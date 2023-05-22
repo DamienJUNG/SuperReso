@@ -36,5 +36,6 @@ void affiche_tout_routeur(routeur monRout){
     afficheNbPorts(monRout);
     affichePriorite(monRout);
     afficheCommutation(monRout);
-
 }
+
+

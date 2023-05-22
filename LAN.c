@@ -37,13 +37,7 @@ void recupere_config(LAN *lan, const char * filename){
             char *token = strtok(buffer,";");
             token = strtok(NULL,";");
             routeur rout_rout;
-            char *mini_token = strtok(token,":");
-            for(int i=0;i<7 && mini_token != NULL;i++){
-                rout_rout.mac[i] = strtol(mini_token,NULL,16);
-                printf("%s:",mini_token);
-                mini_token = strtok(NULL,":");
-            }
-            printf("\n");
+            construit_mac(rout_rout,token);
             //ajoute_routeur(lan, rout_rout);
     	}
     	else if(atoi(string)==STATION && strstr(buffer,":")){
@@ -59,4 +53,19 @@ void ajoute_routeur(LAN *lan, routeur rout){
 }
 void ajoute_station(LAN *lan, station stat){
 
+}
+
+unsigned char* construit_mac(char* token){
+    unsigned char mac[7];
+    char *champ = strtok(token,":");
+    for(int i=0;i<7 && champ != NULL;i++){
+        monRout.champ[i] = strtol(champ,NULL,16);
+        printf("%s",champ);
+        if(i!=6){
+            printf(":");
+        }
+        champ = strtok(NULL,":");
+    }
+    printf("\n");
+    return
 }

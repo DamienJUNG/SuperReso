@@ -1,6 +1,6 @@
 #include "commutation.h"
 typedef struct routeur {
-	unsigned char mac[7];
+	unsigned char *mac;
 	unsigned int nb_ports;
 	unsigned int priorite;
 	commutation table[64];//table de commutation

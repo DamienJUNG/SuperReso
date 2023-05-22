@@ -1,6 +1,6 @@
 typedef struct station
 {
-	unsigned char mac[7];
+	unsigned char *mac;
 	unsigned char ip[5];
 }station;
 
