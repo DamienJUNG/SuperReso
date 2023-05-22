@@ -13,16 +13,16 @@ typedef struct LAN
 {
 	commutateur *commutateurs;
 	station *stations;
+	unsigned int commutateur_capacite;
+	unsigned int station_capacite;
 	unsigned int nb_commutateur;
 	unsigned int nb_station;
-	unsigned int curs_commutateur;
-	unsigned int curs_station;
 	//graphe graphe;
 	appareil *appareils;
 }LAN;
 void init_Lan(LAN *lan);
 void free_Lan(LAN *lan);
 void recupere_config(LAN *lan, const char* filename);
-void ajoute_commutateur(LAN *lan,commutateur rout);
+void ajoute_commutateur(LAN *lan,commutateur comm);
 void ajoute_station(LAN *lan,station stat);
 unsigned char* construit_mac(char* token);
