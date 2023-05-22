@@ -58,6 +58,20 @@ void ajoute_commutateur(LAN *lan, commutateur rout){
     lan->curs_commutateur+=1;
 }
 void ajoute_station(LAN *lan, station stat){
-    lan->stations[lan->nb_station-1]=stat;
-    lan->curs_station+=1;
+
+}
+
+unsigned char* construit_mac(char* token){
+    unsigned char mac[7];
+    char *champ = strtok(token,":");
+    for(int i=0;i<7 && champ != NULL;i++){
+        monRout.champ[i] = strtol(champ,NULL,16);
+        printf("%s",champ);
+        if(i!=6){
+            printf(":");
+        }
+        champ = strtok(NULL,":");
+    }
+    printf("\n");
+    return
 }
