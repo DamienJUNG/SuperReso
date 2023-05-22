@@ -1,10 +1,10 @@
 #include "commutation.h"
 typedef struct routeur {
-	byte mac[6];
-	int nb_ports;
-	int priorite;
-	commutation[64] table;//table de commutation
-}
+	unsigned char mac[7];
+	unsigned int nb_ports;
+	unsigned int priorite;
+	commutation table[64];//table de commutation
+}routeur;
 void affiche_routeur(routeur monRout);
 void affiche_nbPorts(routeur monRout);
 void affiche_priorite(routeur monRout);

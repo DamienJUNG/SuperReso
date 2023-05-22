@@ -1,7 +1,7 @@
 #include "appareil.h"
 #include "routeur.h"
 #include "station.h"
-#include "graphe.h"
+//#include "graphe.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +15,11 @@ typedef struct LAN
 	station *stations;
 	unsigned int nb_routeur;
 	unsigned int nb_station;
-	graphe g;
+	//graphe graphe;
 	appareil *appareils;
-};
-
+}LAN;
+void init_Lan(LAN *lan);
+void free_Lan(LAN *lan);
 void recupere_config(LAN *lan, char* filename);
 void ajoute_routeur(LAN *lan,routeur rout);
 void ajoute_station(LAN *lan,station stat);

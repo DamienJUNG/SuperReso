@@ -1,30 +1,40 @@
 #include "LAN.h"
 
+void init_Lan(LAN *lan){
+    lan->routeurs = malloc(sizeof(routeur) * 10);
+    lan->stations = malloc(sizeof(station) * 10);
+    lan->nb_routeur = 10;
+    lan->nb_station = 10;
+    /*graphe g;
+    init_graphe(&g);
+    lan->graphe = g;*/
+    lan->appareils = malloc(sizeof(appareil)*20);
+}
+
+void free_Lan(LAN *lan){
+    free(lan->routeurs);
+    free(lan->stations);
+    free(lan->appareils);
+    //free_graphe(&lan->graphe);
+    lan->nb_routeur = 0;
+    lan->nb_station = 0;
+}
+
 void recupere_config(LAN *lan, char * filename){
-	FILE* file = fopen(rep[i]->d_name,"r");
+	FILE* file = fopen(filename,"r");
     char buffer[2048];
-    unsigned int routeurs = 0;
-    unsigned int stations = 0;
-    unsigned int nb_ligne = 0;
     unsigned int appareils;
-    unsigned int ;
     fgets(buffer,2048,file);
     while(fgets(buffer,2048,file)!=NULL){
-    	nb_ligne++;
-    	if(strcmp(buffer[0],"2") && strstr(buffer,":")){
-    		routeurs++;
+        char string[2];
+        string[0] = buffer[0];
+        string[1] = '\0';
+    	if(strcmp(string,"2") && strstr(buffer,":")){
+    		//ajoute_routeur();
     	}
-    	else if(strcmp(buffer[0],"1") && strstr(buffer,":")){
-    		stations++;
+    	else if(strcmp(string,"1") && strstr(buffer,":")){
+            //ajoute_station();
     	}
-    }
-    fseek(file, nb_ligne,SEEK_SET);
-    if(nb_ligne>1){
-    	lan->nb_routeur = routeurs;
-		lan->nb_station = stations;
-		fgets(buffer,2048,file);
-		printf("%d\n",atoi(buffer));;
-
     }
     fclose(file);
 }
@@ -32,6 +42,6 @@ void recupere_config(LAN *lan, char * filename){
 void ajoute_routeur(LAN *lan, routeur rout){
 
 }
-void ajoute_stations(LAN *lan, stations stat){
+void ajoute_station(LAN *lan, station stat){
 
 }

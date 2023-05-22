@@ -1,6 +1,4 @@
-typedef struct commutation
-{
-	int *ports;
-    int nb_ligne;
-    byte *mac; // adresse des switch 
-};
+typedef struct commutation {
+    unsigned int priorite;
+    unsigned char mac[7]; // adresse des switch 
+}commutation;
