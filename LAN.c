@@ -24,7 +24,7 @@ void free_Lan(LAN *lan){
     lan->curs_station = 0;
 }
 
-void recupere_config(LAN *lan, char * filename){
+void recupere_config(LAN *lan, const char * filename){
 	FILE* file = fopen(filename,"r");
     char buffer[2048];
     unsigned int appareils;
@@ -33,10 +33,20 @@ void recupere_config(LAN *lan, char * filename){
         char string[2];
         string[0] = buffer[0];
         string[1] = '\0';
-    	if(strcmp(string,"2") && strstr(buffer,":")){
-    		ajoute_routeur(lan, {routeur}());
+    	if(atoi(string)==ROUTEUR && strstr(buffer,":")){
+            char *token = strtok(buffer,";");
+            token = strtok(NULL,";");
+            routeur rout_rout;
+            char *mini_token = strtok(token,":");
+            for(int i=0;i<7 && mini_token != NULL;i++){
+                rout_rout.mac[i] = strtol(mini_token,NULL,16);
+                printf("%s:",mini_token);
+                mini_token = strtok(NULL,":");
+            }
+            printf("\n");
+            //ajoute_routeur(lan, rout_rout);
     	}
-    	else if(strcmp(string,"1") && strstr(buffer,":")){
+    	else if(atoi(string)==STATION && strstr(buffer,":")){
             //ajoute_station();
     	}
     }

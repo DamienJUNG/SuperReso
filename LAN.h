@@ -22,6 +22,6 @@ typedef struct LAN
 }LAN;
 void init_Lan(LAN *lan);
 void free_Lan(LAN *lan);
-void recupere_config(LAN *lan, char* filename);
+void recupere_config(LAN *lan, const char* filename);
 void ajoute_routeur(LAN *lan,routeur rout);
 void ajoute_station(LAN *lan,station stat);
