@@ -15,6 +15,8 @@ typedef struct LAN
 	station *stations;
 	unsigned int nb_routeur;
 	unsigned int nb_station;
+	unsigned int curs_routeur;
+	unsigned int curs_station;
 	//graphe graphe;
 	appareil *appareils;
 }LAN;

@@ -5,6 +5,8 @@ void init_Lan(LAN *lan){
     lan->stations = malloc(sizeof(station) * 10);
     lan->nb_routeur = 10;
     lan->nb_station = 10;
+    lan->curs_routeur = 0;
+    lan->curs_station = 0;
     /*graphe g;
     init_graphe(&g);
     lan->graphe = g;*/
@@ -18,6 +20,8 @@ void free_Lan(LAN *lan){
     //free_graphe(&lan->graphe);
     lan->nb_routeur = 0;
     lan->nb_station = 0;
+    lan->curs_routeur = 0;
+    lan->curs_station = 0;
 }
 
 void recupere_config(LAN *lan, char * filename){
@@ -30,7 +34,7 @@ void recupere_config(LAN *lan, char * filename){
         string[0] = buffer[0];
         string[1] = '\0';
     	if(strcmp(string,"2") && strstr(buffer,":")){
-    		//ajoute_routeur();
+    		ajoute_routeur(lan, {routeur}());
     	}
     	else if(strcmp(string,"1") && strstr(buffer,":")){
             //ajoute_station();
@@ -40,7 +44,8 @@ void recupere_config(LAN *lan, char * filename){
 }
 
 void ajoute_routeur(LAN *lan, routeur rout){
-
+    lan->routeurs[lan->curs_routeur] = rout;
+    lan->curs_routeur+=1;
 }
 void ajoute_station(LAN *lan, station stat){
 
