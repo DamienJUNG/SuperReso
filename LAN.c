@@ -48,5 +48,6 @@ void ajoute_routeur(LAN *lan, routeur rout){
     lan->curs_routeur+=1;
 }
 void ajoute_station(LAN *lan, station stat){
-
+    lan->stations[lan->nb_station-1]=stat;
+    lan->nb_station+=1;
 }
