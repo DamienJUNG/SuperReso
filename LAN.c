@@ -1,11 +1,11 @@
 #include "LAN.h"
 
 void init_Lan(LAN *lan){
-    lan->routeurs = malloc(sizeof(routeur) * 10);
+    lan->commutateurs = malloc(sizeof(commutateur) * 10);
     lan->stations = malloc(sizeof(station) * 10);
-    lan->nb_routeur = 10;
+    lan->nb_commutateur = 10;
     lan->nb_station = 10;
-    lan->curs_routeur = 0;
+    lan->curs_commutateur = 0;
     lan->curs_station = 0;
     /*graphe g;
     init_graphe(&g);
@@ -14,13 +14,13 @@ void init_Lan(LAN *lan){
 }
 
 void free_Lan(LAN *lan){
-    free(lan->routeurs);
+    free(lan->commutateurs);
     free(lan->stations);
     free(lan->appareils);
     //free_graphe(&lan->graphe);
-    lan->nb_routeur = 0;
+    lan->nb_commutateur = 0;
     lan->nb_station = 0;
-    lan->curs_routeur = 0;
+    lan->curs_commutateur = 0;
     lan->curs_station = 0;
 }
 
@@ -33,10 +33,10 @@ void recupere_config(LAN *lan, const char * filename){
         char string[2];
         string[0] = buffer[0];
         string[1] = '\0';
-    	if(atoi(string)==ROUTEUR && strstr(buffer,":")){
+    	if(atoi(string)==commutateur && strstr(buffer,":")){
             char *token = strtok(buffer,";");
             token = strtok(NULL,";");
-            routeur rout_rout;
+            commutateur rout_rout;
             char *mini_token = strtok(token,":");
             for(int i=0;i<7 && mini_token != NULL;i++){
                 rout_rout.mac[i] = strtol(mini_token,NULL,16);
@@ -44,7 +44,7 @@ void recupere_config(LAN *lan, const char * filename){
                 mini_token = strtok(NULL,":");
             }
             printf("\n");
-            //ajoute_routeur(lan, rout_rout);
+            //ajoute_commutateur(lan, rout_rout);
     	}
     	else if(atoi(string)==STATION && strstr(buffer,":")){
             //ajoute_station();
@@ -53,9 +53,9 @@ void recupere_config(LAN *lan, const char * filename){
     fclose(file);
 }
 
-void ajoute_routeur(LAN *lan, routeur rout){
-    lan->routeurs[lan->curs_routeur] = rout;
-    lan->curs_routeur+=1;
+void ajoute_commutateur(LAN *lan, commutateur rout){
+    lan->commutateurs[lan->curs_commutateur] = rout;
+    lan->curs_commutateur+=1;
 }
 void ajoute_station(LAN *lan, station stat){
     lan->stations[lan->nb_station-1]=stat;
