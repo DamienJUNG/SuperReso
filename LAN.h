@@ -25,4 +25,7 @@ void free_Lan(LAN *lan);
 void recupere_config(LAN *lan, const char* filename);
 void ajoute_commutateur(LAN *lan,commutateur comm);
 void ajoute_station(LAN *lan,station stat);
-unsigned char* construit_mac(char* token);
+void construit_mac(char* token,unsigned char* mac);
+unsigned int converti_champ(char* champ);
+int puissance(int nb, int expo);
+void construit_ip(char* token, unsigned char* ip);

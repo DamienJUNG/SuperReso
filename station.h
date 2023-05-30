@@ -1,7 +1,8 @@
+#include <stdio.h>
 typedef struct station
 {
-	unsigned char *mac;
-	unsigned char ip[5];
+	unsigned char mac[6];
+	unsigned char ip[4];
 }station;
 
 void affiche_mac_station(station maStation);

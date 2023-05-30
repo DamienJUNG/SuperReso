@@ -1,6 +1,7 @@
 #include "commutation.h"
+#include <stdio.h>
 typedef struct commutateur {
-	unsigned char *mac;
+	unsigned char mac[6];
 	unsigned int nb_ports;
 	unsigned int priorite;
 	commutation table[64];//table de commutation

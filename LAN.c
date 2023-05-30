@@ -17,6 +17,9 @@ void free_Lan(LAN *lan){
     free(lan->commutateurs);
     free(lan->stations);
     free(lan->appareils);
+    lan->commutateurs=NULL;
+    lan->stations=NULL;
+    lan->appareils=NULL;
     //free_graphe(&lan->graphe);
     lan->nb_commutateur = 0;
     lan->nb_station = 0;
@@ -34,14 +37,37 @@ void recupere_config(LAN *lan, const char * filename){
         string[0] = buffer[0];
         string[1] = '\0';
     	if(atoi(string)==COMMUTATEUR && strstr(buffer,":")){
-            char *token = strtok(buffer,";");
-            token = strtok(NULL,";");
             commutateur comm;
-            comm.mac = construit_mac(token);
-            //ajoute_commutateur(lan, rout_rout);
+            //Initailisation du découpage
+            char *token = strtok(buffer,";");
+            //Récupération de l'adresse mac
+            token = strtok(NULL,";");
+            char *mac = token; //On la stocke pour plus tard
+
+            //Attribution du nombre de ports et de la priorité
+            token = strtok(NULL,";");
+            comm.nb_ports = atoi(token);
+            token = strtok(NULL,";");
+            comm.priorite = atoi(token);
+
+            //Construction de l'adresse mac
+            construit_mac(mac,comm.mac);
+
+            ajoute_commutateur(lan, comm);
     	}
     	else if(atoi(string)==STATION && strstr(buffer,":")){
-            //ajoute_station();
+            station stat;
+            //Initailisation du découpage
+            char *token = strtok(buffer,";");
+            //Récupération de l'adresse ip
+            token = strtok(NULL,";");       
+            char *mac = token; //On la stocke pour plus tard
+
+            //Récupération de l'adresse ip
+            token = strtok(NULL,";");
+            construit_ip(token,stat.ip);
+            construit_mac(mac,stat.mac);
+            ajoute_station(lan, stat);
     	}
     }
     fclose(file);
@@ -56,17 +82,44 @@ void ajoute_station(LAN *lan, station stat){
     lan->nb_station+=1;
 }
 
-unsigned char* construit_mac(char* token){
-    unsigned char* mac = malloc(sizeof(char)*6);
+void construit_mac(char* token,unsigned char* mac){
     char *champ = strtok(token,":");
-    for(int i=0;i<7 && champ != NULL;i++){
-        mac[i] = strtol(champ,NULL,16);
-        printf("%s",champ);
-        if(i!=5){
-            printf(":");
-        }
+    for(int i=0;i<6;i++){
+        mac[i] = converti_champ(champ);
         champ = strtok(NULL,":");
     }
-    printf("\n");
-    return mac;
+}
+unsigned int converti_champ(char* champ){
+    int i=0;
+    int hex=0;
+    int taille = strlen(champ);
+    while(champ[i]!='\0'){
+        if(champ[i]>=48 && champ[i]<=57){
+            hex+=(champ[i]-48) * puissance(16,(taille-i));
+        }
+        else if (champ[i]>=65 && champ[i]<=90){
+            hex+= (champ[i]-55) * puissance(16,(taille-i));
+        }
+        else if(champ[i]>=97 && champ[i]<=122){
+            hex+=(champ[i]-87) * puissance(16,(taille-i));
+        }
+        i++;
+    }
+    return hex;
+}
+int puissance(int nb, int expo){
+    int res = 1;
+    for(int i=1;i<expo;i++){
+        res*=nb;
+    }
+    return res;
+}
+
+void construit_ip(char* token, unsigned char* ip){
+    char *champ = strtok(token,".");
+    for (int i = 0; i < 4; ++i)
+    {
+        ip[i]=atoi(champ);
+        champ = strtok(NULL,".");
+    }
 }
