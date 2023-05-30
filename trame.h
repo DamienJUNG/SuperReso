@@ -42,4 +42,3 @@ void show_trame(TRAME *trame);
 
 
 
-
