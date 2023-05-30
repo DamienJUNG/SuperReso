@@ -14,7 +14,7 @@ typedef struct TRAME
 
 void init_trame(TRAME *trame);
 void create_trame(TRAME *trame,unsigned char *src, unsigned char *dest,unsigned char *data);
-
+void show_trame(TRAME *trame);
 
 
 

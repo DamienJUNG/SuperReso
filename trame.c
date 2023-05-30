@@ -20,7 +20,32 @@ void create_trame(TRAME *trame,unsigned char *src, unsigned char *dest,unsigned 
     trame->type=strlen(data);
     trame->data;
 }
+void show_trame(TRAME *trame){
+    printf("««««« TRAME »»»»»\n");
+    printf("|");
+    for(int i=0;i<7;++){
+        printf("%u",trame->preamble[i]);
+    }
+    printf("|%u|",sof);
+    for(int i=0;i<6;++){
+        printf("%u",trame->destination[i]);
+    }
+    printf("|");
+    for(int i=0;i<6;++){
+        printf("%u",trame->source[i]);
+    }
+    printf("|%d|",type)
+    for(int i=0;i<type;++){
+        printf("%u",trame->data[i]);
+    }
+    printf("|");
+    for(int i=0;i<4;++){
+        printf("%u",trame->fcs[i]);
+    }
+    printf("|");
 
+
+}
 
 
 
