@@ -26,7 +26,7 @@ void show_trame(TRAME *trame){
     for(int i=0;i<7;++){
         printf("%u",trame->preamble[i]);
     }
-    printf("|%u|",sof);
+    printf("|%u|",trame->sof);
     for(int i=0;i<6;++){
         printf("%u",trame->destination[i]);
     }
@@ -34,17 +34,15 @@ void show_trame(TRAME *trame){
     for(int i=0;i<6;++){
         printf("%u",trame->source[i]);
     }
-    printf("|%d|",type)
-    for(int i=0;i<type;++){
+    printf("|%d|",trame->type)
+    for(int i=0;i<trame->type;++){
         printf("%u",trame->data[i]);
     }
     printf("|");
     for(int i=0;i<4;++){
         printf("%u",trame->fcs[i]);
     }
-    printf("|");
-
-
+    printf("|\n");
 }
 
 
