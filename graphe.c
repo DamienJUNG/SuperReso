@@ -51,11 +51,12 @@ bool existe_arete(graphe const *g, arete a)
     // retourne true si l'arête a est contenue dans le graphe g, false sinon
     if(a.s1 > ordre(g) || a.s2 > ordre(g)){
         return false;
-    }
+    }//rep
     // /!\ l'arête (s1,s2) et l'arête (s2,s1) sont équivalentes
     if (a.s1 > a.s2){
         a = swap_arete(a);
     }
+    printf("%d\n",g->nb_aretes);
     for(int i=0;i<g->nb_aretes;i++){
         if((a.s1==g->aretes[i].s1 && a.s2==g->aretes[i].s2)){
             return true;
@@ -73,7 +74,6 @@ bool ajouter_arete(graphe *g, arete a)
         return false;
     if(existe_arete(g,a))
         return false;
-    
     if(g->nb_aretes == g->aretes_capacite){
         g->aretes = realloc(g->aretes,g->aretes_capacite * 2 * sizeof(arete));
         g->aretes_capacite *= 2;
@@ -130,4 +130,43 @@ size_t sommets_adjacents(graphe const *g, sommet s, sommet sa[])
     // (le tableau sa est supposé assez grand pour contenir les sommets adjacents)
 
     return nb;
+}
+
+void afficher(graphe const *g)
+{
+    printf("AFFICHE GRAPHE\n");
+    printf("===============\n");
+    printf("--SOMMETS--\n");
+    sommet sa[64];
+    for(int i=0;i<ordre(g);i++){
+        printf("%zu (degre : %zu) <-> ",i,degre(g,i));
+        int nb = sommets_adjacents(g,i,sa);
+        for(int c = 0;c<nb;c++){
+            printf("%zu ",sa[c]);
+        }
+        printf("\n");
+    }
+    printf("--ARETES--\n");
+    for(int i=0;i<g->nb_aretes;i++){
+        printf("%d : %zu - %zu\n",i,g->aretes[i].s1,g->aretes[i].s2);
+    }
+}
+size_t degre(graphe const *g, sommet s)
+{
+    sommet sa[64];
+    return sommets_adjacents(g, s,sa);
+}
+
+bool est_regulier(graphe const *g)
+{
+    if(ordre(g)<1){
+        return true;
+    }
+    size_t deg = degre(g,0);
+    for(int i=1;i<ordre(g);i++){
+        if(degre(g,i)!=deg){
+            return false;
+        }
+    }
+    return true;
 }
