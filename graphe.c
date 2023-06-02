@@ -56,7 +56,6 @@ bool existe_arete(graphe const *g, arete a)
     if (a.s1 > a.s2){
         a = swap_arete(a);
     }
-    printf("%d\n",g->nb_aretes);
     for(int i=0;i<g->nb_aretes;i++){
         if((a.s1==g->aretes[i].s1 && a.s2==g->aretes[i].s2)){
             return true;

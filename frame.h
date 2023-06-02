@@ -3,42 +3,15 @@
 
 typedef struct frame
 {
-	unsigned char preamble[7];
-    unsigned char sof;
-    unsigned char destination[6];
-    unsigned char source[6];
-    unsigned int type;
+	uint8_t preamble[7];
+    uint8_t sof;
+    uint64_t destination;
+    uint64_t source;
+    uint8_t type;
     uint8_t *data;
-    unsigned char fcs[4];
+    uint8_t fcs[4];
 
 }frame;
 
-void create_frame(frame *frame,unsigned char *src, unsigned char *dest, uint8_t const *data, size_t size);
+void create_frame(frame *frame,uint64_t src, uint64_t dest, uint8_t const *data, size_t size);
 void show_frame(frame *frame);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

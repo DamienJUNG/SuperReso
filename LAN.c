@@ -1,11 +1,9 @@
 #include "LAN.h"
 
 void init_Lan(LAN *lan){
-    lan->Switchs = malloc(sizeof(Switch) * 10);
+    lan->bridges = malloc(sizeof(bridge) * 10);
     lan->stations = malloc(sizeof(station) * 10);
-    lan->Switch_capacite = 10;
-    lan->station_capacite = 10;
-    lan->nb_Switch = 0;
+    lan->nb_bridge = 0;
     lan->nb_station = 0;
     lan->graphe = malloc(sizeof(graphe));
     init_graphe(lan->graphe);
@@ -13,19 +11,17 @@ void init_Lan(LAN *lan){
 }
 
 void free_Lan(LAN *lan){
-    free(lan->Switchs);
+    free(lan->bridges);
     free(lan->stations);
     free(lan->devices);
-    lan->Switchs=NULL;
+    lan->bridges=NULL;
     lan->stations=NULL;
     lan->devices=NULL;
     free_graphe(lan->graphe);
     free(lan->graphe);
     lan->graphe = NULL;
-    lan->nb_Switch = 0;
+    lan->nb_bridge = 0;
     lan->nb_station = 0;
-    lan->Switch_capacite = 0;
-    lan->station_capacite = 0;
 }
 
 void get_config(LAN *lan, const char *filename){
@@ -42,9 +38,8 @@ void get_config(LAN *lan, const char *filename){
         char string[2];
         string[0] = buffer[0];
         string[1] = '\0';
-    	if(atoi(string)==SWITCH && strstr(buffer,":")){
-            printf("%s\n",buffer);
-            Switch my_switch;
+    	if(atoi(string)==BRIDGE && strstr(buffer,":")){
+            bridge my_bridge;
             //Initailisation du découpage
             token = strtok(buffer,";");
             //Récupération de l'adresse mac
@@ -53,17 +48,16 @@ void get_config(LAN *lan, const char *filename){
 
             //Attribution du nombre de ports et de la priorité
             token = strtok(NULL,";");
-            my_switch.nb_ports = atoi(token);
+            my_bridge.nb_ports = atoi(token);
             token = strtok(NULL,";");
-            my_switch.priority = atoi(token);
+            my_bridge.priority = atoi(token);
 
             //Construction de l'adresse mac
-            build_mac(mac,my_switch.mac);
+            my_bridge.mac = build_mac(mac);
 
-            add_Switch(lan, &my_switch);
+            add_bridge(lan, &my_bridge);
     	}
     	else if(atoi(string)==STATION && strstr(buffer,":")){
-            printf("%s\n",buffer);
             station stat;
             //Initailisation du découpage
             char *token = strtok(buffer,";");
@@ -73,8 +67,8 @@ void get_config(LAN *lan, const char *filename){
 
             //Récupération de l'adresse ip
             token = strtok(NULL,";");
-            build_ip(token,stat.ip);
-            build_mac(mac,stat.mac);
+            stat.ip = build_ip(token);
+            stat.mac = build_mac(mac);
             add_station(lan, &stat);
     	}
         else{
@@ -82,30 +76,32 @@ void get_config(LAN *lan, const char *filename){
             int source = atoi(token);
             token = strtok(NULL,";");
             int destination = atoi(token);
-            ajouter_arete(lan->graphe,(arete){source,destination});
-            printf("ici\n");
-        }
+            ajouter_arete(lan->graphe,(arete){source,destination});        }
     }
     fclose(file);
 }
 
-void add_Switch(LAN *lan, Switch *my_switch){
-    lan->devices[lan->nb_Switch+lan->nb_station] = (device){SWITCH,lan->nb_Switch};
-    lan->Switchs[lan->nb_Switch] = *my_switch;
-    lan->nb_Switch+=1;
+void add_bridge(LAN *lan, bridge *my_bridge){
+    lan->devices[lan->nb_bridge+lan->nb_station] = (device){BRIDGE,lan->nb_bridge};
+    lan->bridges[lan->nb_bridge] = *my_bridge;
+    lan->nb_bridge+=1;
 }
 void add_station(LAN *lan, station *stat){
-    lan->devices[lan->nb_Switch+lan->nb_station] = (device){STATION,lan->nb_station};
+    lan->devices[lan->nb_bridge+lan->nb_station] = (device){STATION,lan->nb_station};
     lan->stations[lan->nb_station] = *stat;
     lan->nb_station+=1;
 }
 
-void build_mac(char* token,unsigned char* mac){
+uint64_t build_mac(char* token){
+    uint64_t mac = 0;
     char *field = strtok(token,":");
-    for(int i=0;i<6;i++){
-        mac[i] = str_to_int(field);
+    for(int i=0;i<5;i++){
+        mac += str_to_int(field);
+        mac = mac << 8;
         field = strtok(NULL,":");
     }
+    mac += str_to_int(field);
+    return mac;
 }
 unsigned int str_to_int(char* field){
     int i=0;
@@ -133,23 +129,27 @@ int power(int nb, int expo){
     return res;
 }
 
-void build_ip(char* token, unsigned char* ip){
-    char *field = strtok(token,".");
-    for (int i = 0; i < 4; ++i)
+uint32_t build_ip(char* addr){
+    uint32_t ip = 0;
+    char *field = strtok(addr,".");
+    for (int i = 0; i < 3; ++i)
     {
-        ip[i]=atoi(field);
+        ip += atoi(field);
         field = strtok(NULL,".");
+        ip = ip << 8;
     }
+    ip += atoi(field);
+    return ip;
 }
 
 void show_devices(LAN *lan){
-    int max = lan->nb_station+lan->nb_Switch;
+    int max = lan->nb_station+lan->nb_bridge;
     for(int i=0;i<max;i++){
-        if(lan->devices[i].type==SWITCH){
-            printf("### Switch ###\n");
-            print_mac(lan->Switchs[lan->devices[i].number].mac);
-            printf("Priorité : %d\n",lan->Switchs[lan->devices[i].number].priority);
-            printf("Nombres de ports : %d\n",lan->Switchs[lan->devices[i].number].nb_ports);
+        if(lan->devices[i].type==BRIDGE){
+            printf("### SWITCH ###\n");
+            print_mac(lan->bridges[lan->devices[i].number].mac);
+            printf("Priorité : %d\n",lan->bridges[lan->devices[i].number].priority);
+            printf("Nombres de ports : %d\n",lan->bridges[lan->devices[i].number].nb_ports);
         }
         else{
             printf("### STATION ###\n");
@@ -160,60 +160,56 @@ void show_devices(LAN *lan){
     }
 }
 
-void print_mac(unsigned char* mac){
+void print_mac(uint64_t mac){
     printf("Adresse mac : ");
     for(int i=0;i<6;i++){
         if(i==5){
-            printf("%02x",mac[i]);
+            printf("%02x",(uint8_t)(mac>>(40 - i * 8)));
         }
         else{
-            printf("%02x:",mac[i]);
+            printf("%02x:",(uint8_t)(mac>>(40 - i * 8)));
         }
     }
     printf("\n");
 }
-void print_ip(unsigned char* ip){
+void print_ip(uint32_t ip){
     printf("Adresse ip : ");
-    for(int i=0;i<4;i++){
-        if (i==3){
-            printf("%02d",ip[i]);
-        }
-        else{
-            printf("%02d.",ip[i]);
-        }
-    }
+    printf("%d.",(uint8_t)(ip>>24));
+    printf("%d.",(uint8_t)(ip>>16));
+    printf("%d.",(uint8_t)(ip>>8));
+    printf("%d\n",(uint8_t)ip);
     printf("\n");
 }
 
 void receive_frame(station *receiver, frame *message){
-    if(compare_mac(receiver->mac,message->destination)){
-        /*printf("Message lu par la station :");
+    if(compare_mac(receiver->mac,message->destination) || compare_mac(message->destination,BROADCAST)){
+        printf("Message lu par la station\n");
         print_mac(receiver->mac);
-        show_frame(message);*/
+        print_ip(receiver->ip);
+        //show_frame(message);
     }
     else{
-        /*printf("Message ignoré par la station :");
-        print_mac(receiver->mac);*/
+        printf("Message ignoré par la station :\n");
+        print_mac(receiver->mac);
+        print_ip(receiver->ip);
     }
 }
 
-void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message){
+void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, int level){
     sommet sa[64];
-    printf("-- SOMMET %d --\n",actuel);
+    for(int i=0;i<level;i++){
+        printf("\t");
+    }
+    printf("-- SWITCH %d --\n",actuel);
     int nb = sommets_adjacents(lan->graphe,actuel,sa);
     for(int i=0;i<nb;i++){
-        if(sa[i]==source){
-            continue;
+        if(sa[i]>=lan->nb_bridge){
+            printf("Envoi à la station %d :\n",sa[i]-lan->nb_bridge);
+            receive_frame(&lan->stations[sa[i]-lan->nb_bridge],message);
         }
-        if(lan->devices[sa[i]].type==SWITCH)
+        else if (sa[i]!=source)
         {
-            printf("Passage par le sommet : %d\n",sa[i]);
-            commute_frame(actuel, lan, sa[i], message);
-        }
-        if(lan->devices[sa[i]].type==STATION){
-            printf("Envoi au sommet : %d\n",sa[i]);
-            int index = lan->devices[sa[i]].number;
-            receive_frame(&lan->stations[index],message);
+            commute_frame(actuel, lan, sa[i], message, level+1);
         }
     }
     printf("\n");
@@ -222,13 +218,18 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message){
 void transfert_frame(sommet source, LAN *lan, frame *message){
     sommet sa[64];
     int nb = sommets_adjacents(lan->graphe, source, sa);
-    printf("Départ sommet : %d\n",source);
+    if(nb>0){
+        printf("Départ station : %d\n",source - lan->nb_bridge);
+    }
+    else{
+        printf("La station est isolée, et ne peut communiquer avec aucun autre appareil.\n");
+    }
+    int level = 0;
     for (int i = 0; i < nb; ++i)
     {
-        printf("Passage sommet : %d\n",sa[i]);
-        if(lan->devices[sa[i]].type==SWITCH)
+        if(lan->devices[sa[i]].type==BRIDGE)
         {
-            commute_frame(source, lan, lan->devices[sa[i]].number, message);
+            commute_frame(source, lan, lan->devices[sa[i]].number, message,level);
         }
         if(lan->devices[sa[i]].type==STATION){
             int index = lan->devices[sa[i]].number;
@@ -237,22 +238,26 @@ void transfert_frame(sommet source, LAN *lan, frame *message){
     }
 }
 
-int compare_mac(unsigned char* mac1, unsigned char *mac2){
-    for (int i = 0; i < 6; ++i)
+int compare_mac(uint64_t mac1, uint64_t mac2){
+    return mac1==mac2;
+}
+
+void show_stations(LAN *lan){
+    printf("\n");
+    for (int i = 0; i < lan->nb_station; ++i)
     {
-        if(mac1[i]!=mac2[i]){
-            return 0;
-        }
+        printf("station : %d\n",i);
+        print_mac(lan->stations[i].mac);
+        print_ip(lan->stations[i].ip);
     }
-    return 1;
 }
 
 
 
-/*void affiche_my_switchutation(Switch monCom){
-    printf("######### TABLE DE my_switchUTATION #########\n");
+/*void affiche_my_bridgeutation(bridge monCom){
+    printf("######### TABLE DE my_bridgeUTATION #########\n");
     for(int i=0;i<64;i++){
-        printf("###### Switch 1 ######\n");
+        printf("###### bridge 1 ######\n");
         printf("### PORTS ###\n");
         for(int y=0;y<monCom.table[i].nb_ligne;y++){
             printf("%d",monCom.table[i].ports[y]);
