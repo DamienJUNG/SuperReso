@@ -13,7 +13,6 @@ void ask_frame(LAN lan){
 	frame message;
 	char const* data = "coucou";
 	if(destination==-1){
-		print_mac(BROADCAST);
 		create_frame(&message,lan.stations[source].mac,BROADCAST,(uint8_t const*)data, strlen(data));
 	}
 	else{
@@ -34,8 +33,11 @@ int main(int argc, char const *argv[])
 	get_config(&lan,argv[1]);
 	//show_devices(&lan);
 	//afficher(lan.graphe);
-	show_stations(&lan);
-	ask_frame(lan);
+	while(true){
+		//show_stations(&lan);
+		ask_frame(lan);
+		//show_bridges(&lan);
+	}
 	free_Lan(&lan);
 	return 0;
 }

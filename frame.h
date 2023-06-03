@@ -10,7 +10,6 @@ typedef struct frame
     uint8_t type;
     uint8_t *data;
     uint8_t fcs[4];
-
 }frame;
 
 void create_frame(frame *frame,uint64_t src, uint64_t dest, uint8_t const *data, size_t size);
