@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -29,9 +29,10 @@ size_t nb_aretes(graphe const *g);
 void aggrandi_graphe(graphe *g);
 
 void ajouter_sommet(graphe *g);
-static arete swap_arete(arete a);
 bool existe_arete(graphe const *g, arete a);
 bool ajouter_arete(graphe *g, arete a);
 size_t index_arete(graphe const *g, arete a);
 
 size_t sommets_adjacents(graphe const *g, sommet s, sommet sa[]);
+void afficher(graphe const *g);
+size_t degre(graphe const *g, sommet s);

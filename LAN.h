@@ -1,50 +1,69 @@
-#include "appareil.h"
-#include "commutateur.h"
-#include "commutation.h"
-#include "station.h"
 #include "graphe.h"
+#include "frame.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define COMMUTATEUR 2
+
+#define BRIDGE 2
 #define STATION 1
+#define BROADCAST 0xffffffffffff
+#define MAX_DEVICES 32
+
+typedef struct commutation {
+    uint64_t *mac;
+    int state;
+} commutation;
 
 typedef struct station
 {
-	unsigned char mac[6];
-	unsigned char ip[4];
-}station;
+	uint64_t mac;
+	uint32_t ip;
+} station;
 
-typedef struct commutateur {
-	unsigned char mac[6];
-	unsigned int nb_ports;
-	unsigned int priorite;
-	commutation table[64];//table de commutation
-}commutateur;
+typedef struct bridge {
+	uint64_t mac;
+	uint8_t nb_ports;
+	uint16_t priority;
+	commutation *table; //table de commutation
+} bridge;
+
+typedef struct device
+{
+	int type;
+	int number;	
+}device;
 
 
 typedef struct LAN
 {
-	commutateur *commutateurs;
+	bridge *bridges;
 	station *stations;
-	unsigned int commutateur_capacite;
-	unsigned int station_capacite;
-	unsigned int nb_commutateur;
+	unsigned int nb_bridge;
 	unsigned int nb_station;
-	graphe graphe;
-	appareil *appareils;
+	graphe *graphe;
+	device *devices;
 }LAN;
+
+
 void init_Lan(LAN *lan);
 void free_Lan(LAN *lan);
-void recupere_config(LAN *lan, const char* filename);
-void ajoute_commutateur(LAN *lan,commutateur comm);
-void ajoute_station(LAN *lan,station stat);
-void construit_mac(char* token,unsigned char* mac);
-unsigned int converti_champ(char* champ);
-int puissance(int nb, int expo);
-void construit_ip(char* token, unsigned char* ip);
+void get_config(LAN *lan, const char* filename);
+void add_bridge(LAN *lan,bridge *my_bridge);
+void add_station(LAN *lan,station *stat);
+uint64_t build_mac(char* token);
+unsigned int str_to_int(char* field);
+int power(int nb, int expo);
+uint32_t build_ip(char* addr);
 void show_devices(LAN *lan);
-void print_mac(unsigned char* mac);
-void print_ip(unsigned char* mac);
+void print_mac(uint64_t mac);
+void print_ip(uint32_t ip);
+void receive_frame(station *receiver, frame *message, uint8_t level);
+int know_destintaion(bridge my_bridge, uint64_t mac);
+void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8_t level);
+void transfert_frame(sommet source, LAN *lan, frame *message);
+int compare_mac(uint64_t mac1, uint64_t mac2);
+void show_stations(LAN *lan);
+void show_bridges(LAN *lan);
+void print_commutation_table(bridge my_bridge);
 
