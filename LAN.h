@@ -25,7 +25,7 @@ typedef struct bridge {
 	uint64_t mac;
 	uint8_t nb_ports;
 	uint16_t priority;
-	commutation *table;//table de commutation
+	commutation *table; //table de commutation
 } bridge;
 
 typedef struct device

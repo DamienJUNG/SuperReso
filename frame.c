@@ -2,7 +2,7 @@
 
 #include <string.h>
 #include <stdio.h>
-
+    
 void create_frame(frame *frame, uint64_t src, uint64_t dest, uint8_t const *data, size_t size){
     for(int i=0;i<=7;i++){
         frame->preamble[i]=170; // oui c'est pas ouf chut

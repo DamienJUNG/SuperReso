@@ -33,10 +33,26 @@ int main(int argc, char const *argv[])
 	get_config(&lan,argv[1]);
 	//show_devices(&lan);
 	//afficher(lan.graphe);
-	while(true){
-		//show_stations(&lan);
-		ask_frame(lan);
-		//show_bridges(&lan);
+	int rep=0;
+	while(rep!=4){
+		printf("1. Consulter la liste des stations\n");
+		printf("2. Consulter la liste des switch\n");
+		printf("3. Faire une simulation d'envoie de trame\n");
+		printf("4. Quitter\n");
+		scanf("%d",&rep);
+		if(rep!=4){
+			printf("################################\n################################\n################################\n\n");
+			if(rep==1){
+				show_stations(&lan);
+			}
+			else if(rep==2){
+				show_bridges(&lan);
+			}
+			else if(rep==3){
+				ask_frame(lan);
+			}
+			printf("################################\n################################\n################################\n\n");
+		}
 	}
 	free_Lan(&lan);
 	return 0;

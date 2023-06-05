@@ -187,7 +187,6 @@ void print_mac(uint64_t mac){
     printf("\n");
 }
 void print_ip(uint32_t ip){
-    printf("Adresse ip : ");
     printf("%d.",(uint8_t)(ip>>24));
     printf("%d.",(uint8_t)(ip>>16));
     printf("%d.",(uint8_t)(ip>>8));
@@ -201,8 +200,8 @@ void receive_frame(station *receiver, frame *message, uint8_t level){
         shift(level);
         printf("Adresse mac : ");
         print_mac(receiver->mac);
-        printf("\n");
         shift(level);
+        printf("Adresse ip : ");
         print_ip(receiver->ip);
         printf("\n");
         //show_frame(message);
@@ -212,8 +211,8 @@ void receive_frame(station *receiver, frame *message, uint8_t level){
         shift(level);
         printf("Adresse mac : ");
         print_mac(receiver->mac);
-        printf("\n");
         shift(level);
+        printf("Adresse ip : ");
         print_ip(receiver->ip);
         printf("\n");
     }
@@ -264,7 +263,14 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8
             }
             else{
                 lan->bridges[actuel].table[i].state=2;
-                lan->bridges[actuel].table[i].mac[0] = message->source;
+                int c = 0;
+                while(c < 10 && lan->bridges[actuel].table[i].mac[c]!=0){
+                    c++;
+                }
+                if (c==9){
+                    c=0;
+                }
+                lan->bridges[actuel].table[i].mac[c] = message->source;
             }
         }
     }
@@ -319,12 +325,11 @@ void show_stations(LAN *lan){
     printf("\n");
     for (int i = 0; i < lan->nb_station; ++i)
     {
-        printf("station : %d\n",i);
-        printf("Adresse mac : ");
+        printf("\t## STATION %d ##\n",i);
+        printf("\t## Adresse mac : ");
         print_mac(lan->stations[i].mac);
-        printf("\n");
+        printf("\t## Adresse ip : ");
         print_ip(lan->stations[i].ip);
-        printf("\n");
     }
 }
 
@@ -332,11 +337,13 @@ void show_bridges(LAN *lan){
     printf("\n");
     for (int i = 0; i < lan->nb_bridge; ++i)
     {
-        printf("\t## SWITCH %d | ",i);
-        printf("Adresse mac : ");
+        printf("\t## SWITCH %d ##\n",i);
+        printf("\t## Adresse mac : ");
         print_mac(lan->bridges[i].mac);
-        printf("\nTable de commutation :\n");
-        print_commutation_table(lan->bridges[i]);
+        printf("\t## Nombre de ports : %d\n",lan->bridges[i].nb_ports);
+        printf("\t## Priorité : %d\n",lan->bridges[i].priority);
+        /*printf("Table de commutation :\n");
+        print_commutation_table(lan->bridges[i]);*/
         printf("\n");
     }
 }
