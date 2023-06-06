@@ -1,5 +1,24 @@
 #include "devices.h"
 
+void print_mac(uint64_t mac){
+    for(int i=0;i<6;i++){
+        if(i==5){
+            printf("%02x",(uint8_t)(mac>>(40 - i * 8)));
+        }
+        else{
+            printf("%02x:",(uint8_t)(mac>>(40 - i * 8)));
+        }
+    }
+}
+
+void print_ip(uint32_t ip){
+    printf("%d.",(uint8_t)(ip>>24));
+    printf("%d.",(uint8_t)(ip>>16));
+    printf("%d.",(uint8_t)(ip>>8));
+    printf("%d\n",(uint8_t)ip);
+    printf("\n");
+}
+
 uint64_t build_mac(char* token){
     uint64_t mac = 0;
     char *field = strtok(token,":");
@@ -85,62 +104,39 @@ void create_frame(frame *frame, uint64_t src, uint64_t dest, uint8_t const *data
     }
         //trame->data;
     unsigned char *data_temp = NULL;
-    int taille = trame->type;
+    int taille = frame->type;
     int tailleBourrage = 46; //1454
-    if(trame->type>=1454){
-        tailleBourrage = tailleBourrage-(trame->type-1454); //obtient la taille du bourrage
+    if(frame->type>=1454){
+        tailleBourrage = tailleBourrage-(frame->type-1454); //obtient la taille du bourrage
     }
-    data_temp = malloc(sizeof(unsigned char) * (trame->type+tailleBourrage)); // data temporaire
+    data_temp = malloc(sizeof(unsigned char) * (frame->type+tailleBourrage)); // data temporaire
     for(int i=0;i<taille;i++){ // met le message dans le data temporaire
-        data_temp[i]=data[i]
+        data_temp[i]=data[i];
     }
-    for(int i=taille-1;i<(trame->type+tailleBourrage);i++){ // effectue le bourrage du reste
+    for(int i=taille-1;i<(frame->type+tailleBourrage);i++){ // effectue le bourrage du reste
         data_temp[i]=0;
     }
-    trame->data=data_temp;
+    frame->data=data_temp;
 }
-void show_trame(TRAME *trame){
+void show_trame(frame *trame){
     printf("««««« TRAME »»»»»\n");
     printf("|");
-    for(int i=0;i<7;++){
+    for(int i=0;i<7;i++){
         printf("%u",trame->preamble[i]);
     }
     printf("|%u|",trame->sof);
-    for(int i=0;i<6;++){
-        printf("%u",trame->destination[i]);
-    }
-    printf("|");
-    for(int i=0;i<6;++){
-        printf("%u",trame->source[i]);
-    }
-    printf("|%d|",trame->type)
-    for(int i=0;i<trame->type;++){
+    print_mac(trame->destination);
+    printf("\n|");
+    print_mac(trame->source);
+    printf("\n|%d|",trame->type);
+    for(int i=0;i<trame->type;i++){
         printf("%u",trame->data[i]);
     }
     printf("|");
-    for(int i=0;i<4;++){
+    for(int i=0;i<4;i++){
         printf("%u",trame->fcs[i]);
     }
     printf("|\n");
-}
-
-void print_mac(uint64_t mac){
-    for(int i=0;i<6;i++){
-        if(i==5){
-            printf("%02x",(uint8_t)(mac>>(40 - i * 8)));
-        }
-        else{
-            printf("%02x:",(uint8_t)(mac>>(40 - i * 8)));
-        }
-    }
-}
-
-void print_ip(uint32_t ip){
-    printf("%d.",(uint8_t)(ip>>24));
-    printf("%d.",(uint8_t)(ip>>16));
-    printf("%d.",(uint8_t)(ip>>8));
-    printf("%d\n",(uint8_t)ip);
-    printf("\n");
 }
 
 void print_commutation_table(bridge my_bridge)
