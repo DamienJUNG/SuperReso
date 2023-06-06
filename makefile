@@ -1,4 +1,4 @@
-all: test
+all: test no_cycle
 
 LAN.o:LAN.c LAN.h
 	gcc -c LAN.c
@@ -6,8 +6,10 @@ LAN.o:LAN.c LAN.h
 graphe.o:graphe.c graphe.h
 	gcc -c graphe.c
 
-frame.o:frame.c frame.h
-	gcc -c frame.c
+devices.o:devices.c devices.h
+	gcc -c devices.c
+test:main.c LAN.o graphe.o devices.o
+	gcc -Wall -o test main.c LAN.o graphe.o devices.o
 
-test:main.c LAN.o graphe.o frame.o
-	gcc -Wall -o test main.c LAN.o graphe.o frame.o
+no_cycle:scenario_no_cycle_dialogue.c LAN.o graphe.o devices.o
+	gcc -Wall -o no_cycle scenario_no_cycle_dialogue.c LAN.o graphe.o devices.o

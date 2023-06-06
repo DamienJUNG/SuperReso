@@ -1,5 +1,7 @@
 #include "LAN.h"
 
+uint8_t count_frame;
+
 static void shift(uint8_t n){
     for(int i=0;i<n;i++){
         printf("\t");
@@ -13,16 +15,13 @@ void init_Lan(LAN *lan){
     lan->nb_station = 0;
     lan->graphe = malloc(sizeof(graphe));
     init_graphe(lan->graphe);
-    lan->devices = malloc(sizeof(device)*20);
 }
 
 void free_Lan(LAN *lan){
     free(lan->bridges);
     free(lan->stations);
-    free(lan->devices);
     lan->bridges=NULL;
     lan->stations=NULL;
-    lan->devices=NULL;
     free_graphe(lan->graphe);
     free(lan->graphe);
     lan->graphe = NULL;
@@ -34,7 +33,6 @@ void get_config(LAN *lan, const char *filename){
     char *token;
 	FILE* file = fopen(filename,"r");
     char buffer[2048];
-    unsigned int devices;
     fgets(buffer,2048,file);
     token = strtok(buffer," ");
     for(int i=0;i<atoi(token);i++){
@@ -62,6 +60,7 @@ void get_config(LAN *lan, const char *filename){
 
             my_bridge.table = malloc(sizeof(commutation) * my_bridge.nb_ports);
             my_bridge.table->state = 0;
+            my_bridge.table->nb_mac = 0;
             for (int i = 0; i < my_bridge.nb_ports; ++i)
             {
                 my_bridge.table[i].mac = malloc(sizeof(uint64_t) * 10);
@@ -91,108 +90,22 @@ void get_config(LAN *lan, const char *filename){
             int source = atoi(token);
             token = strtok(NULL,";");
             int destination = atoi(token);
-            ajouter_arete(lan->graphe,(arete){source,destination});        }
+            ajouter_arete(lan->graphe,(arete){source,destination});        
+        }
     }
     fclose(file);
 }
 
 void add_bridge(LAN *lan, bridge *my_bridge){
-    lan->devices[lan->nb_bridge+lan->nb_station] = (device){BRIDGE,lan->nb_bridge};
     lan->bridges[lan->nb_bridge] = *my_bridge;
     lan->nb_bridge+=1;
 }
 void add_station(LAN *lan, station *stat){
-    lan->devices[lan->nb_bridge+lan->nb_station] = (device){STATION,lan->nb_station};
     lan->stations[lan->nb_station] = *stat;
     lan->nb_station+=1;
 }
 
-uint64_t build_mac(char* token){
-    uint64_t mac = 0;
-    char *field = strtok(token,":");
-    for(int i=0;i<5;i++){
-        mac += str_to_int(field);
-        mac = mac << 8;
-        field = strtok(NULL,":");
-    }
-    mac += str_to_int(field);
-    return mac;
-}
-unsigned int str_to_int(char* field){
-    int i=0;
-    int hex=0;
-    int taille = strlen(field);
-    while(field[i]!='\0'){
-        if(field[i]>=48 && field[i]<=57){
-            hex+=(field[i]-48) * power(16,(taille-i));
-        }
-        else if (field[i]>=65 && field[i]<=90){
-            hex+= (field[i]-55) * power(16,(taille-i));
-        }
-        else if(field[i]>=97 && field[i]<=122){
-            hex+=(field[i]-87) * power(16,(taille-i));
-        }
-        i++;
-    }
-    return hex;
-}
-int power(int nb, int expo){
-    int res = 1;
-    for(int i=1;i<expo;i++){
-        res*=nb;
-    }
-    return res;
-}
 
-uint32_t build_ip(char* addr){
-    uint32_t ip = 0;
-    char *field = strtok(addr,".");
-    for (int i = 0; i < 3; ++i)
-    {
-        ip += atoi(field);
-        field = strtok(NULL,".");
-        ip = ip << 8;
-    }
-    ip += atoi(field);
-    return ip;
-}
-
-void show_devices(LAN *lan){
-    int max = lan->nb_station+lan->nb_bridge;
-    for(int i=0;i<max;i++){
-        if(lan->devices[i].type==BRIDGE){
-            printf("### SWITCH ###\n");
-            print_mac(lan->bridges[lan->devices[i].number].mac);
-            printf("Priorité : %d\n",lan->bridges[lan->devices[i].number].priority);
-            printf("Nombres de ports : %d\n",lan->bridges[lan->devices[i].number].nb_ports);
-        }
-        else{
-            printf("### STATION ###\n");
-            print_mac(lan->stations[lan->devices[i].number].mac);
-            print_ip(lan->stations[lan->devices[i].number].ip);
-        }
-        printf("\n");
-    }
-}
-
-void print_mac(uint64_t mac){
-    for(int i=0;i<6;i++){
-        if(i==5){
-            printf("%02x",(uint8_t)(mac>>(40 - i * 8)));
-        }
-        else{
-            printf("%02x:",(uint8_t)(mac>>(40 - i * 8)));
-        }
-    }
-    printf("\n");
-}
-void print_ip(uint32_t ip){
-    printf("%d.",(uint8_t)(ip>>24));
-    printf("%d.",(uint8_t)(ip>>16));
-    printf("%d.",(uint8_t)(ip>>8));
-    printf("%d\n",(uint8_t)ip);
-    printf("\n");
-}
 
 void receive_frame(station *receiver, frame *message, uint8_t level){
     if(compare_mac(receiver->mac,message->destination) || compare_mac(message->destination,BROADCAST)){
@@ -200,6 +113,7 @@ void receive_frame(station *receiver, frame *message, uint8_t level){
         shift(level);
         printf("Adresse mac : ");
         print_mac(receiver->mac);
+        printf("\n");
         shift(level);
         printf("Adresse ip : ");
         print_ip(receiver->ip);
@@ -211,6 +125,7 @@ void receive_frame(station *receiver, frame *message, uint8_t level){
         shift(level);
         printf("Adresse mac : ");
         print_mac(receiver->mac);
+        printf("\n");
         shift(level);
         printf("Adresse ip : ");
         print_ip(receiver->ip);
@@ -218,24 +133,13 @@ void receive_frame(station *receiver, frame *message, uint8_t level){
     }
 }
 
-int know_destintaion(bridge my_bridge, uint64_t mac){
-    for (int i = 0; i < my_bridge.nb_ports; ++i)
-    {
-        if (my_bridge.table[i].state!=0)
-        {
-            for (int c = 0;c<10 && my_bridge.table[i].mac[c]!=0; ++c)
-            {
-                if(compare_mac(my_bridge.table[i].mac[c], mac)){
-                    return i;
-                }
-            }
-        }   
-    }
-    return -1;
-}
+
 
 void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8_t level){
-
+    if(count_frame>lan->graphe->nb_aretes){
+        return ;
+    }
+    count_frame++;
     int transfert=0;
     //Affichage en fonction du niveau de profondeur
     shift(level);
@@ -263,14 +167,10 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8
             }
             else{
                 lan->bridges[actuel].table[i].state=2;
-                int c = 0;
-                while(c < 10 && lan->bridges[actuel].table[i].mac[c]!=0){
-                    c++;
+                if(know_destintaion(lan->bridges[actuel],message->source)==-1){
+                lan->bridges[actuel].table[i].mac[lan->bridges[actuel].table[i].nb_mac] = message->source;
+                lan->bridges[actuel].table[i].nb_mac = (lan->bridges[actuel].table[i].nb_mac+1)%10;
                 }
-                if (c==9){
-                    c=0;
-                }
-                lan->bridges[actuel].table[i].mac[c] = message->source;
             }
         }
     }
@@ -287,6 +187,15 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8
             transfert++;
             commute_frame(actuel, lan, sa[is_knew], message, level+1);
         }
+        int i=0;
+        while(sa[i]!=source && i<nb){
+            i++;
+        }
+        lan->bridges[actuel].table[i].state=2;
+        if(know_destintaion(lan->bridges[actuel],message->source)==-1){
+            lan->bridges[actuel].table[i].mac[lan->bridges[actuel].table[i].nb_mac] = message->source;
+            lan->bridges[actuel].table[i].nb_mac = (lan->bridges[actuel].table[i].nb_mac+1)%10;
+        }
     }
     shift(level);
     printf("-- SWITCH %d --\n",actuel);
@@ -296,6 +205,7 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8
 }
 
 void transfert_frame(sommet source, LAN *lan, frame *message){
+    count_frame=0;
     sommet sa[64];
     int nb = sommets_adjacents(lan->graphe, source, sa);
     if(nb>0){
@@ -317,9 +227,7 @@ void transfert_frame(sommet source, LAN *lan, frame *message){
     }
 }
 
-int compare_mac(uint64_t mac1, uint64_t mac2){
-    return mac1==mac2;
-}
+
 
 void show_stations(LAN *lan){
     printf("\n");
@@ -328,7 +236,7 @@ void show_stations(LAN *lan){
         printf("\t## STATION %d ##\n",i);
         printf("\t## Adresse mac : ");
         print_mac(lan->stations[i].mac);
-        printf("\t## Adresse ip : ");
+        printf("\n\t## Adresse ip : ");
         print_ip(lan->stations[i].ip);
     }
 }
@@ -340,7 +248,7 @@ void show_bridges(LAN *lan){
         printf("\t## SWITCH %d ##\n",i);
         printf("\t## Adresse mac : ");
         print_mac(lan->bridges[i].mac);
-        printf("\t## Nombre de ports : %d\n",lan->bridges[i].nb_ports);
+        printf("\n\t## Nombre de ports : %d\n",lan->bridges[i].nb_ports);
         printf("\t## Priorité : %d\n",lan->bridges[i].priority);
         /*printf("Table de commutation :\n");
         print_commutation_table(lan->bridges[i]);*/
@@ -348,31 +256,49 @@ void show_bridges(LAN *lan){
     }
 }
 
-void print_commutation_table(bridge my_bridge){
-    sommet sa[64];
-    for (int i = 0; i < my_bridge.nb_ports; ++i)
-    {
-        if(my_bridge.table[i].state!=0){
-            printf("état du port %d : ",i);
-            if (my_bridge.table[i].state==1)
-            {
-                printf("racine");
-            }
-            else if (my_bridge.table[i].state==2)
-            {
-                printf("désigné");
-            }
-            else if (my_bridge.table[i].state==-1)
-            {
-                printf("désactivé");
-            }
-            printf("\n");
-            printf("Adresse mac : ");
-            for(int c=0;c<10 && my_bridge.table[i].mac[c]!=0;c++){
-                print_mac(my_bridge.table[i].mac[c]);
-                printf("\n");
-            }
-            printf("\n");
-        }
+
+
+
+void show_frame(frame *frame){
+    printf("««««« frame »»»»»\n");
+    printf("|");
+    for(int i=0;i<7;i++){
+        printf("%b",frame->preamble);
     }
+    printf("|\n|%b|\n",frame->sof);
+    printf("Adresse source :");
+    print_mac(frame->source);
+    printf("\nAdresse destination :");
+    print_mac(frame->destination);
+    printf("\n|%d|\n",frame->type);
+    for(int i=0;i<frame->type;i++){
+        printf("%c",frame->data[i]);
+    }
+    printf("\n|");
+    for(int i=0;i<4;i++){
+        printf("%u",frame->fcs[i]);
+    }
+    printf("|\n");
+}
+
+
+void ask_frame(LAN lan){
+    sommet source;
+    sommet destination;
+
+    printf("Entrez le numéro de la station source station :\n");
+    scanf("%ld",&source);
+    printf("Entrez le numéro de la station de destination station :\n");
+    scanf("%ld",&destination);
+    printf("\n");
+
+    frame message;
+    char const* data = "coucou";
+    if(destination==-1){
+        create_frame(&message,lan.stations[source].mac,BROADCAST,(uint8_t const*)data, strlen(data));
+    }
+    else{
+        create_frame(&message,lan.stations[source].mac,lan.stations[destination].mac,(uint8_t const*)data, strlen(data));
+    }
+    transfert_frame(source+lan.nb_bridge,&lan,&message);
 }
