@@ -28,5 +28,4 @@ void commute_frame(sommet source, LAN *lan, sommet actuel, frame *message, uint8
 void transfert_frame(sommet source, LAN *lan, frame *message);
 void show_stations(LAN *lan);
 void show_bridges(LAN *lan);
-void show_frame(frame *frame);
 void ask_frame(LAN lan);
