@@ -116,6 +116,7 @@ void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *da
         data_temp[i]=0;
     }
     message->data=data_temp;
+    free(data_temp);
 }
 void show_frame(frame *message){
     printf("««««« TRAME »»»»»\n");
