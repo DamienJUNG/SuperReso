@@ -42,6 +42,7 @@ uint32_t build_ip(char* addr);
 int know_destintaion(bridge my_bridge, uint64_t mac);
 int compare_mac(uint64_t mac1, uint64_t mac2);
 void create_frame(frame *frame,uint64_t src, uint64_t dest, uint8_t const *data, size_t size);
+void show_trame(TRAME *trame)
 void print_mac(uint64_t mac);
 void print_ip(uint32_t ip);
 void print_commutation_table(bridge my_bridge);
