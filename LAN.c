@@ -258,30 +258,6 @@ void show_bridges(LAN *lan){
 
 
 
-
-void show_frame(frame *frame){
-    printf("««««« frame »»»»»\n");
-    printf("|");
-    for(int i=0;i<7;i++){
-        printf("%b",frame->preamble);
-    }
-    printf("|\n|%b|\n",frame->sof);
-    printf("Adresse source :");
-    print_mac(frame->source);
-    printf("\nAdresse destination :");
-    print_mac(frame->destination);
-    printf("\n|%d|\n",frame->type);
-    for(int i=0;i<frame->type;i++){
-        printf("%c",frame->data[i]);
-    }
-    printf("\n|");
-    for(int i=0;i<4;i++){
-        printf("%u",frame->fcs[i]);
-    }
-    printf("|\n");
-}
-
-
 void ask_frame(LAN lan){
     sommet source;
     sommet destination;

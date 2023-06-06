@@ -91,7 +91,7 @@ int compare_mac(uint64_t mac1, uint64_t mac2){
 
 void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *data, size_t size){
     for(int i=0;i<=7;i++){
-        frame->preamble[i]=170; // oui c'est pas ouf chut
+        message->preamble[i]=170; // oui c'est pas ouf chut
     }
     message->sof = 171;
     message->source = src;
@@ -138,7 +138,7 @@ void show_frame(frame *message){
     }
     printf("|\n");
 }
-void show_frame_for_dev(frame *frame){
+void show_frame_for_dev(frame *message){
     printf("««««« TRAME »»»»»\n");
     printf("|");
     for(int i=0;i<7;i++){
