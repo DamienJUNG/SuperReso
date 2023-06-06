@@ -29,3 +29,4 @@ void transfert_frame(sommet source, LAN *lan, frame *message);
 void show_stations(LAN *lan);
 void show_bridges(LAN *lan);
 void ask_frame(LAN lan);
+void show_network(LAN *lan);

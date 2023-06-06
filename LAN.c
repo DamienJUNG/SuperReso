@@ -269,12 +269,53 @@ void ask_frame(LAN lan){
     printf("\n");
 
     frame message;
-    char const* data = "coucou";
+    char * data = malloc(sizeof(char) * 1501);
+    printf("Que voulez-vous mettre dans la trame ?\n");
+    scanf("%1500s",data);
     if(destination==-1){
         create_frame(&message,lan.stations[source].mac,BROADCAST,(uint8_t const*)data, strlen(data));
     }
     else{
         create_frame(&message,lan.stations[source].mac,lan.stations[destination].mac,(uint8_t const*)data, strlen(data));
     }
+    free(data);
     transfert_frame(source+lan.nb_bridge,&lan,&message);
+    printf("\n\n## Voici le message qui a été transféré ##\n");
+    show_frame(&message);
+    printf("## Version prof de réseau ##\n");
+    show_frame_for_dev(&message);
+    printf("\n\n");
+}
+
+void show_network(LAN *lan){
+    sommet sa[64];
+    for(int i=0;i<lan->nb_bridge+lan->nb_station;i++){
+        int nb = sommets_adjacents(lan->graphe,i,sa);
+        printf("%d - ",i);
+        if(i>=lan->nb_bridge){
+            printf("station %d (%d voisins)",i-lan->nb_bridge,nb);
+            if (nb>0)
+            {
+                printf(" :");
+                for (int c = 0; c < nb; ++c)
+                {
+                    printf(" %d",sa[c]);
+                }
+            }
+            printf("\n");
+        }
+        else{
+            printf("swicth %d (%d voisins)",i,nb);
+            if (nb>0)
+            {
+                printf(" :");
+                for (int c = 0; c < nb; ++c)
+                {
+                    printf(" %d",sa[c]);
+                }
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
 }

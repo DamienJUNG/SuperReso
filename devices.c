@@ -83,80 +83,86 @@ int know_destintaion(bridge my_bridge, uint64_t mac){
         }   
     }
     return -1;
-}
+}   
 
 int compare_mac(uint64_t mac1, uint64_t mac2){
     return mac1==mac2;
 }
 
-void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *data, size_t size){
+void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *data, uint16_t size){
     for(int i=0;i<=7;i++){
         message->preamble[i]=170; // oui c'est pas ouf chut
     }
     message->sof = 171;
     message->source = src;
     message->destination = dest;
-    message->type = size;
-    message->data = malloc(size);
-    memcpy(message->data, data, size);
+    if (size>1500)
+    {
+        message->type = size;
+    }
+    else{
+        message->type = 1500;   
+    }
     for(int i=0;i<=4;i++){
         message->fcs[i]=1; // oui c'est pas ouf chut
     }
-    unsigned char *data_temp = NULL;
-    int sizeM = message->type;
-    int sizeFiller = 46; //1454
-    if(message->type>=1454){
-        sizeFiller = sizeFiller-(sizeM-1454); //obtient la taille du bourrage
+    int max;
+    if (message->type>1500)
+    {
+        message->data = malloc(1500);
+        memcpy(message->data, data, 1500);
     }
-    data_temp = malloc(sizeof(unsigned char) * (sizeM+sizeFiller)); // data temporaire
-    for(int i=0;i<sizeM;i++){ // met le message dans le data temporaire
-        data_temp[i]=data[i];
+    else{
+        if(message->type<46){
+            message->data = malloc(46);
+            max = 46;
+        }
+        else if (message->type<=1500){
+            message->data = malloc(message->type);
+            max = 0;
+        }
+        memcpy(message->data, data, message->type);
     }
-    for(int i=sizeM-1;i<(sizeM+sizeFiller);i++){ // effectue le bourrage du reste
-        data_temp[i]=0;
+    for (int i = message->type; i < max; ++i){
+        message->data[i] = 0;
     }
-    message->data=data_temp;
-    free(data_temp);
 }
 void show_frame(frame *message){
     printf("««««« TRAME »»»»»\n");
-    printf("|");
-    for(int i=0;i<7;i++){
-        printf("%u",message->preamble[i]);
-    }
-    printf("|%u|",message->sof);
-    print_mac(message->destination);
-    printf("\n|");
+    printf("Adresse source : ");
     print_mac(message->source);
-    printf("\n|%d|",message->type);
+    printf("\n");
+    printf("Adresse destination : ");
+    print_mac(message->destination);
+    printf("\nMessage : ");
     for(int i=0;i<message->type;i++){ // affichage du data pour les noobs
-        printf("%u",message->data[i]);
+        printf("%c",message->data[i]);
     }
-    printf("|");
-    for(int i=0;i<4;i++){
-        printf("%u",message->fcs[i]);
-    }
-    printf("|\n");
+    printf("\n\n");
 }
+
 void show_frame_for_dev(frame *message){
     printf("««««« TRAME »»»»»\n");
-    printf("|");
+    printf("Préambule |");
     for(int i=0;i<7;i++){
-        printf("%u",message->preamble[i]);
+        printf("%b",message->preamble[i]);
     }
-    printf("|%u|",message->sof);
-    print_mac(message->destination);
-    printf("\n|");
+    printf("|\nSof |%b|\nSource |",message->sof);
     print_mac(message->source);
-    printf("\n|%d|",message->type);
-    int sizeFiller = 46;
-    if(message->type>=1454){
-        sizeFiller = sizeFiller-(message->type-1454); //obtient la taille du bourrage
+    printf("|\nDestination |");
+    print_mac(message->destination);
+    printf("|\nTaille |%d|\nMessage | ",message->type);
+    if(message->type<46){
+        for(int i=0;i<46;i++){ // afiche le data pour les vrai
+            printf("%02x ",message->data[i]);
+        }
     }
-    for(int i=0;i<message->type+sizeFiller;i++){ // afiche le data pour les vrai
-        printf("%u",message->data[i]);
+    else{
+        for(int i=0;i<message->type;i++){ // afiche le data pour les vrai
+            printf("%02x ",message->data[i]);
+        }
     }
-    printf("|");
+    printf("|\nCode de vérification |");
     for(int i=0;i<4;i++){
         printf("%u",message->fcs[i]);
     }
