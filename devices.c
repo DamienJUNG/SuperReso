@@ -89,34 +89,34 @@ int compare_mac(uint64_t mac1, uint64_t mac2){
     return mac1==mac2;
 }
 
-void create_frame(frame *frame, uint64_t src, uint64_t dest, uint8_t const *data, size_t size){
+void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *data, size_t size){
     for(int i=0;i<=7;i++){
         frame->preamble[i]=170; // oui c'est pas ouf chut
     }
-    frame->sof = 171;
-    frame->source = src;
-    frame->destination = dest;
-    frame->type = size;
-    frame->data = malloc(size);
-    memcpy(frame->data, data, size);
+    message->sof = 171;
+    message->source = src;
+    message->destination = dest;
+    message->type = size;
+    message->data = malloc(size);
+    memcpy(message->data, data, size);
     for(int i=0;i<=4;i++){
-        frame->fcs[i]=1; // oui c'est pas ouf chut
+        message->fcs[i]=1; // oui c'est pas ouf chut
     }
         //trame->data;
     unsigned char *data_temp = NULL;
-    int size = frame->type;
+    int size = message->type;
     int sizeFiller = 46; //1454
-    if(frame->type>=1454){
-        sizeFiller = sizeFiller-(frame->type-1454); //obtient la taille du bourrage
+    if(message->type>=1454){
+        sizeFiller = sizeFiller-(message->type-1454); //obtient la taille du bourrage
     }
-    data_temp = malloc(sizeof(unsigned char) * (frame->type+sizeFiller)); // data temporaire
+    data_temp = malloc(sizeof(unsigned char) * (message->type+sizeFiller)); // data temporaire
     for(int i=0;i<size;i++){ // met le message dans le data temporaire
         data_temp[i]=data[i];
     }
-    for(int i=size-1;i<(frame->type+sizeFiller);i++){ // effectue le bourrage du reste
+    for(int i=size-1;i<(message->type+sizeFiller);i++){ // effectue le bourrage du reste
         data_temp[i]=0;
     }
-    frame->data=data_temp;
+    message->data=data_temp;
 }
 void show_frame(frame *message){
     printf("««««« TRAME »»»»»\n");
@@ -134,7 +134,7 @@ void show_frame(frame *message){
     }
     printf("|");
     for(int i=0;i<4;i++){
-        printf("%u",frame->fcs[i]);
+        printf("%u",message->fcs[i]);
     }
     printf("|\n");
 }
@@ -150,15 +150,15 @@ void show_frame_for_dev(frame *frame){
     print_mac(message->source);
     printf("\n|%d|",message->type);
     int sizeFiller = 46;
-    if(frame->type>=1454){
-        sizeFiller = sizeFiller-(frame->type-1454); //obtient la taille du bourrage
+    if(message->type>=1454){
+        sizeFiller = sizeFiller-(message->type-1454); //obtient la taille du bourrage
     }
-    for(int i=0;i<frame->type+sizeFiller;i++){ // afiche le data pour les vrai
-        printf("%u",frame->data[i]);
+    for(int i=0;i<message->type+sizeFiller;i++){ // afiche le data pour les vrai
+        printf("%u",message->data[i]);
     }
     printf("|");
     for(int i=0;i<4;i++){
-        printf("%u",frame->fcs[i]);
+        printf("%u",message->fcs[i]);
     }
     printf("|\n");
 
