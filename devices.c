@@ -104,16 +104,16 @@ void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *da
     }
         //trame->data;
     unsigned char *data_temp = NULL;
-    int size = message->type;
+    int sizeM = message->type;
     int sizeFiller = 46; //1454
     if(message->type>=1454){
-        sizeFiller = sizeFiller-(message->type-1454); //obtient la taille du bourrage
+        sizeFiller = sizeFiller-(sizeM-1454); //obtient la taille du bourrage
     }
-    data_temp = malloc(sizeof(unsigned char) * (message->type+sizeFiller)); // data temporaire
-    for(int i=0;i<size;i++){ // met le message dans le data temporaire
+    data_temp = malloc(sizeof(unsigned char) * (sizeM+sizeFiller)); // data temporaire
+    for(int i=0;i<sizeM;i++){ // met le message dans le data temporaire
         data_temp[i]=data[i];
     }
-    for(int i=size-1;i<(message->type+sizeFiller);i++){ // effectue le bourrage du reste
+    for(int i=sizeM-1;i<(sizeM+sizeFiller);i++){ // effectue le bourrage du reste
         data_temp[i]=0;
     }
     message->data=data_temp;
