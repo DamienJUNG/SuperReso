@@ -96,7 +96,7 @@ void create_frame(frame *message, uint64_t src, uint64_t dest, uint8_t const *da
     message->sof = 171;
     message->source = src;
     message->destination = dest;
-    if (size>1500)
+    if (size<1500)
     {
         message->type = size;
     }

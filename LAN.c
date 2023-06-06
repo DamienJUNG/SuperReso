@@ -269,16 +269,19 @@ void ask_frame(LAN lan){
     printf("\n");
 
     frame message;
-    char * data = malloc(sizeof(char) * 1501);
+    char data[1501] = {'\0'};
     printf("Que voulez-vous mettre dans la trame ?\n");
     scanf("%1500s",data);
+    int i=0;
+    while(data[i]!='\0'){
+        i++;
+    }
     if(destination==-1){
-        create_frame(&message,lan.stations[source].mac,BROADCAST,(uint8_t const*)data, strlen(data));
+        create_frame(&message,lan.stations[source].mac,BROADCAST,(uint8_t const*)data, i);
     }
     else{
-        create_frame(&message,lan.stations[source].mac,lan.stations[destination].mac,(uint8_t const*)data, strlen(data));
+        create_frame(&message,lan.stations[source].mac,lan.stations[destination].mac,(uint8_t const*)data, i);
     }
-    free(data);
     transfert_frame(source+lan.nb_bridge,&lan,&message);
     printf("\n\n## Voici le message qui a été transféré ##\n");
     show_frame(&message);
