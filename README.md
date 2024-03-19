@@ -4,6 +4,8 @@ SuperReso
 Ce projet a pour but de simuler l'envoie de trames au sein d'un réseau local.
 Il est donc possible de lui fournir un graphe de réseau composé de routeurs et de stations et de faire communiquer ces stations entre-elles a l'aide de l'interface présenté dans l'invité de commande.
 
+![](illustration.jpg)
+
 Installation
 ============
 
